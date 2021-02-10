@@ -1,0 +1,32 @@
+---
+  - name: copy ssh key to {{ inventory_hostname }}
+    include_tasks: "copy_ssh_id.yml"
+    vars:
+      target_user: "{{ ansible_user }}"
+      target_host: "{{ inventory_hostname }}"
+
+  - set_fact:
+      services:
+        - "gitlab"
+        - "jenkins"
+
+  - include_tasks: "deploy_service.yml"
+    vars:
+      stand_path: "/services/{{ service }}"
+    loop: "{{ services }}"
+    loop_control:
+      loop_var: service
+
+  - name: get Jenkins admin pass
+    command: cat /services/jenkins/secrets/initialAdminPassword
+    register: jenkins_admin_pass
+    until: jenkins_admin_pass.stdout != ""
+    retries: 5
+    delay: 5
+
+  - name: print Jenkins admin pass 
+    debug:
+      msg: 
+      - "***********************"
+      - "Jenkins admin pass: {{ jenkins_admin_pass.stdout }}"
+      - "***********************"

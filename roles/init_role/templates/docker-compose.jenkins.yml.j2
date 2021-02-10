@@ -1,0 +1,11 @@
+version: '2'
+services:
+  jenkins.upstream:
+    image: "jenkins/jenkins:lts"
+    restart: always
+    hostname: "jenkins.testsite.ru"
+    ports:
+      - "8084:8080"
+      - "50000:50000"
+    volumes:
+      - "./:/var/jenkins_home"

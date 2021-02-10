@@ -1,0 +1,24 @@
+---
+  - name: create folder for service
+    file:
+      path: "{{ stand_path }}"
+      state: directory
+      owner: "{{ ansible_user }}"
+    become: yes
+    become_user: "root"
+
+  - name: copy docker-compose file
+    template:
+      src: "docker-compose.{{ service }}.yml.j2"
+      dest: "{{ stand_path }}/docker-compose.yml"
+
+  - name: Run docker compose
+    community.general.docker_compose:
+      project_src: "{{ stand_path }}"
+      pull: yes
+      recreate: always
+      state: present
+
+  - name: debug
+    debug:
+      msg: "This debug after deploy {{ service }}. Stand path is {{ stand_path }}"
